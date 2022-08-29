@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link href="Turing%20machine%20simulator_files/turing.css" rel="stylesheet" type="text/css">
+  <link href="Turing%20machine%20simulator_files/textarea.css" rel="stylesheet" type="text/css">
+  <title>
+    Simulador Maquina de Turing
+  </title>
+  <script type="text/javascript" defer="defer" src="Turing%20machine%20simulator_files/jquery-1.js"></script>
+  <!--[if lte IE 9]>
+   <script type="text/javascript" src="polyfills.js"></script>
+   <script type="text/javascript" src="json2.js"></script>
+  <![endif]-->
+  <!--[if lt IE 8]>
+   <link href="ie-fixes.css" rel="stylesheet" type="text/css">
+  <![endif]-->  <!-- Conditional comments for old IE versions. Adjust or disable line highlighting and load Javscript polyfills if needed for old IE versions. !-->
+  <script type="text/javascript" defer="defer" src="Turing%20machine%20simulator_files/jsturing.js"></script>
+ </head>
+
+ <body onload="OnLoad();">
+  <div id="Header">
+   <h1>Simulador Maquina de Turing</h1>
+   <div class="backlinks">
+    <a href="http://morphett.info/">Voltar a página inicial</a>
+   </div>
+  </div>
+  <div id="Machine">
+   <div id="MachineTapeContainer">
+    <div class="BoxTitle">Fita</div>
+    <div id="MachineTape" class="MachineStatusBox" title="This is the Turing machine's tape. The head position is indicated by the highlighted cell and arrow.">
+     <!-- the following pre elements must be on a single line with no whitespace between them !-->
+     <div id="RunningTapeDisplay"><div id="TapeValues"><pre id="LeftTape" class="tape"></pre><div id="ActiveTapeArea"><pre id="ActiveTape" class="tape"> </pre><div id="MachineHead"><div class="HeadTop"></div><div class="HeadBody">Head</div></div></div><pre id="RightTape" class="tape"></pre></div></div>
+    </div> <!-- div MachineTape !-->
+   </div>
+
+   <div id="MachineMiddleSection">
+    <div id="MachineStatusMsgWrapper">
+      <pre id="MachineStatusMsgText">Maquina resetada. clique "Rodar" ou "Passo" para iniciar.</pre> <!-- div MachineStatusMsgText !-->
+      <div id="MachineStatusMsgBg" style="background-color: rgb(255, 179, 179); display: none;"></div>
+    </div>
+
+    <div id="MachineStateContainer" class="MachineStatusContainer" title="This is the Turing machine's current state">
+     <div class="BoxTitle">Estado atual</div>
+     <div id="MachineState" class="MachineStatusBox">0</div> <!-- div MachineState !-->
+    </div> <!-- div MachineStateContainer !-->
+
+    <div id="MachineStepsContainer" class="MachineStatusContainer" title="This is the number of steps executed by the machine since starting">
+     <div class="BoxTitle">Passos</div>
+     <div id="MachineSteps" class="MachineStatusBox">0</div> <!-- div MachineSteps !-->
+    </div> <!-- div MachineStepsContainer !-->
+   </div> <!-- div MachineMiddleSection !-->
+   <div class="cleardiv"></div>
+
+   <div id="MachineLowerSection">
+    <div id="MachineLowerSection2">
+
+     <div id="MachineProgramContainer">
+      <div class="BoxTitle">Programa Maquina de Turing</div>
+      <div id="MachineProgramBlock">
+       <div id="MachineProgramBlock2">
+        <div id="SourceContainer">
+         <div id="SourceBackground" style="margin-top: 0px;"><div id="talinebg1" class="talinebg"><div class="talinenum">1</div></div></div>
+         <div id="tabackground">
+<!-- no indenting, because text inside textarea is verbatim !-->
+<textarea id="Source" oninput="TextareaChanged();" onscroll="UpdateTextareaScroll();" onblur="Compile();" title="This is the Turing machine's program. See documentation below for syntax." wrap="off"></textarea>
+         </div>
+        </div>
+        <div id="SyntaxMsg">&nbsp;</div>
+       </div> <!-- div MachineProgramBlock2 !-->
+      </div> <!-- div MachineProgramBlock !-->
+     </div> <!-- div MachineProgramContainer !--> 
+
+     <div id="MachineControlBlock">
+      <div class="BoxTitle">Controles</div>
+      <div id="MachineButtonsBlock">
+       <button id="RunButton" onclick="RunButton();" title="Start the machine running">Rodar</button> <!-- &#x25b8; !--> <!-- Unicode 'play' symbol !-->
+       <span title="If enabled, runs as fast as your browser &amp; computer allow">
+        <input id="SpeedCheckbox" onclick="SpeedCheckbox();" type="checkbox">Rodar sem animação
+       </span>
+       <br>
+       <button id="StopButton" onclick="StopButton();" disabled="disabled" title="Pause the machine when running">Pausar</button><br> <!-- &#x25fe; !-->
+       <button id="UndoButton" onclick="Undo();" title="Undo one machine step" style="float: right;" disabled="disabled">Voltar</button>
+       <button id="StepButton" onclick="StepButton();" title="Run the machine for a single step and the pause">Passo</button><br> <!-- &#x25b8;&#x2759; !-->
+       <button id="ResetButton" onclick="ResetButton();" title="Reset the machine and tape to the initial state" class="">Resetar</button> <!-- &#x2759;&#x23ea; !-->
+       <div id="InitialTapeDisplay" title="This initial data will be loaded on the tape when the machine starts">
+        Entrada inicial:<input id="InitialInput" onchange="ShowResetMsg(true);" type="text">
+       </div>
+       <div style="font-size: small;">
+        <a href="javascript:" onclick="$('#AdvancedOptions').slideToggle();" title="Show advanced machine options">Opções avançadas</a>
+       </div>
+       <div id="AdvancedOptions" style="display: none; margin-top: 0.25em;">
+        <div id="InitialStateDisplay" title="This is the state that the machine will start in" style="margin-bottom: 0.5em;">
+         Estado inicial:<input id="InitialState" value="0" onchange="ShowResetMsg(true);" type="text">
+        </div>
+        <div title="Choose between different Turing machine variants">
+         Variante da maquina:
+         <select onchange="VariantChanged(true);" id="MachineVariant">
+          <option value="0" selected="selected">Padrão</option>
+          <option value="1">Fita semi-infinita</option>
+          <option value="2">Non-deterministic</option>
+         </select>
+         <div id="MachineVariantDescription" style="font-size: small; font-style: italic;"> Maquina de Turing padrao com fita infinita em ambas direçoes</div>
+         <span style="font-size: x-small;"><a href="javascript:" onclick="$('#AdvancedOptions').hide();">[Fechar]</a></span>
+        </div>
+       </div> 
+       <div id="ResetMessage" style="display: none;">As mudanças ocorrerão quando a maquina for resetada.</div>
+       <br>
+       <br>
+       <div id="LoadBlock">
+        <a href="javascript:" onclick="$('#LoadMenu').slideToggle();" title="Load a pre-prepared example program">Carregue um programa de exemplo</a>
+        <div id="LoadMenu" style="">
+         <ul>
+          <li><a href="javascript:" onclick="LoadSampleProgram('palindrome', 'Palindrome detector');">Palindrome detector</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('binaryadd', 'Binary addition machine');">Binary addition</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('binarymult', 'Binary multiplication machine');">Binary multiplication</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('bin2dec', 'Binary to decimal conversion machine');">Binary to decimal conversion</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('turingsequence', 'Turing\'s sequence machine');">Turing's sequence machine</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('parentheses', 'Parentheses checker machine');">Parentheses checker</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('reversepolishboolean', 'Reverse Polish Boolean calculator');">Reverse Polish Boolean calculator</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('primetest', 'Primality test machine');">Primality test</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('4statebeaver', '4-state busy beaver');">4-state busy beaver</a></li>
+          <li><a href="javascript:" onclick="LoadSampleProgram('universal', 'Universal Turing machine');">Universal Turing machine</a></li>
+          <!--<li><a href="javascript:" onclick="LoadSampleProgram('error', 'Error machine');">Error</a></li>!--> <!-- for testing !-->
+         </ul>
+         <span style="font-size: x-small;"><a href="javascript:" onclick="$('#LoadMenu').hide();">[Fechar]</a></span>
+        </div>
+       </div> <!-- div inputProg !-->
+       <br>
+       <a href="javascript:" onclick="SaveToCloud();" title="Save your machine to the cloud for sharing or bookmarking">Salvar na nuvem</a>
+       <!--...<a href="javascript:" onclick="testsave(true);">test ok</a>...<a href="javascript:" onclick="testsave(false);">test error</a>!--> <!-- for testing !-->
+       <div id="SaveStatus" style="display: none;">
+        <div id="SaveStatusFg">
+         <div id="SaveStatusMsg"></div>
+         <span style="font-size: x-small;"><a href="javascript:" onclick="ClearSaveMessage();">[Fechar]</a></span>
+        </div> 
+        <div id="SaveStatusBg"></div>
+       </div>
+       <!--<br><button id="DebugButton" onclick="x();">Debug</button><br>!-->
+      </div> <!-- div MachineButtonsBlock !-->
+     </div> <!-- div MachineControlBlock !-->
+
+
+    </div> <!-- div MachineLowerSection2 !-->
+   </div> <!-- div MachineLowerSection !-->
+
+  </div> <!-- div Machine !-->
+  <div id="SyntaxInfo">Sintaxe:
+   <ul>
+    <li>Cada linha deve conter uma tupla do formato: '<code>&lt;estado atual&gt; &lt;caractere atual&gt; &lt;novo caractere&gt; &lt;direção&gt; &lt;novo estado&gt;</code>'.</li>
+   </ul>
+  </div>
+  <div id="AboutMenu">
+   <div id="AboutItemTech" class="AboutItem"><a href="javascript:" onclick="AboutMenuClicked('Tech');">Datelhes técnicos</a></div>
+   -
+   <div id="AboutItemMail" class="AboutItem"><a href="javascript:" onclick="AboutMenuClicked('Mail');">Receber E-Mails</a></div>
+   -
+   <div id="AboutItemCopying" class="AboutItem"><a href="javascript:" onclick="AboutMenuClicked('Copying');">Copiar</a></div>
+   -
+   <div id="AboutItemOld" class="AboutItem"><a href="javascript:" onclick="AboutMenuClicked('Old');">Versões anteriores</a></div>
+   -
+   <div id="AboutItemContact" class="AboutItem"><a href="javascript:" onclick="AboutMenuClicked('Contact');">Feedback</a></div>
+   <div id="AboutContentContainer">
+    <div id="AboutContentTech" class="AboutContent">
+     O simulador de Maquina de Turing é escrito em HTML/Javascript, e usa <a href="http://jquery.com/">jQuery</a>.  Maquinas salvas são armazenadas em GIST's anonimos no <a href="https://gist.github.com/">GitHub GIST</a> service. Você pode buscar o código <a href="https://github.com/awmorp/jsturing">aqui no GitHub</a>.
+    </div>
+    <div id="AboutContentMail" class="AboutContent">
+     <a href="http://www.freelists.org/list/jsturing">Assine a lista de discussão</a> para atualizações e notícias ocasionais sobre o simulador de Máquina de Turing (normalmente 1-2 E-Mails por ano).
+    </div>
+    <div id="AboutContentCopying" class="AboutContent">
+     Código-fonte do simulador <a href="https://github.com/awmorp/jsturing">disponível no GitHub</a>.
+    Você é bem vindo a baixar, copiar, ou adaptar o código para o que precisar. Se estiver fazendo algo interessante com ele, eu ficaria feliz em saber sobre.
+    </div>
+    <div id="AboutContentOld" class="AboutContent">
+     As versões anteriores do simulador de Máquina de Turing continuam <a href="http://morphett.info/turing/old/turing.html">disponíveis aqui</a>.
+    </div>
+    <div id="AboutContentContact" class="AboutContent">
+     Porfavor mande qualquer erro, feedback, sugestões, etc para <a href="http://morphett.info/">Anthony Morphett</a>, awmorp @ gmail.com
+    </div>
+   </div>
+  </div>
+  <div class="Signature">
+   --Tradução PT-BR e mudanças: <a href="https://github.com/kuromadoshii">Vini</a> -- Criador: <a href="http://morphett.info/">Anthony Morphett</a> - awmorp @ gmail.com
+  </div>
+  <div id="debugOuter" class="DebugClass">
+   Debug: <button id="ClearDebugButton" onclick="ClearDebug();">limpar</button>
+   <pre id="debug">   </pre> <!-- div debug !-->
+  </div> <!-- div debugOuter !-->
+ 
+</body></html>
